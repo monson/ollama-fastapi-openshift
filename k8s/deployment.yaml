@@ -28,17 +28,8 @@ spec:
             cpu: '1'
             memory: 4Gi
       - name: ollama
-        image: quay.io/rh-aiservices-bu/ollama-ubi9:0.2.8
+        image: ollama/ollama:latest
         imagePullPolicy: Always
-        env:
-        - name: MODEL_ID
-          value: llama3.2
-        - name: OLLAMA_MODELS
-          value: /.ollama/models
-        - name: OLLAMA_HOST
-          value: 0.0.0.0
-        - name: OLLAMA_KEEP_ALIVE
-          value: '-1m'
         securityContext:
             capabilities:
               drop:
@@ -61,7 +52,7 @@ spec:
         readinessProbe:
           httpGet:
             path: /
-            port: http
+            port: ollama
             scheme: HTTP
           timeoutSeconds: 5
           periodSeconds: 30
@@ -70,16 +61,12 @@ spec:
         livenessProbe:
           httpGet:
             path: /
-            port: http
+            port: ollama
             scheme: HTTP
           timeoutSeconds: 8
           periodSeconds: 100
           successThreshold: 1
           failureThreshold: 3
-        lifecycle:
-            postStart:
-              exec:
-                command: [ "/bin/sh", "-c", "/bin/ollama pull $MODEL_ID" ]
         terminationMessagePath: /dev/termination-log
         terminationMessagePolicy: File
         volumeMounts:
